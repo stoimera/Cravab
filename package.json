@@ -81,7 +81,7 @@
     "postcss": "^8.5.10",
     "react": "18.3.1",
     "react-big-calendar": "^1.19.4",
-    "react-day-picker": "^8.10.1",
+    "react-day-picker": "^9.14.0",
     "react-dom": "18.3.1",
     "react-hook-form": "^7.72.1",
     "react-resizable-panels": "^4.10.0",
