@@ -4,8 +4,17 @@
  */
 
 import crypto from 'crypto'
+import type { BinaryLike } from 'crypto'
 
 const ALGORITHM = 'aes-256-gcm'
+
+function asBinaryLike(buf: Buffer): BinaryLike {
+  return buf as unknown as BinaryLike
+}
+
+function u8(buf: Buffer): Uint8Array {
+  return new Uint8Array(buf.buffer, buf.byteOffset, buf.byteLength)
+}
 const KEY_LENGTH = 32 // 256 bits
 const IV_LENGTH = 16 // 128 bits
 const TAG_LENGTH = 16 // 128 bits
@@ -37,8 +46,8 @@ export class EncryptionService {
   encrypt(text: string): string {
     try {
       const iv = crypto.randomBytes(IV_LENGTH)
-      const cipher = crypto.createCipher(ALGORITHM, this.key)
-      cipher.setAAD(Buffer.from('CRAVAB-os', 'utf8'))
+      const cipher = crypto.createCipher(ALGORITHM, asBinaryLike(this.key))
+      cipher.setAAD(u8(Buffer.from('CRAVAB-os', 'utf8')))
       
       let encrypted = cipher.update(text, 'utf8', 'hex')
       encrypted += cipher.final('hex')
@@ -67,9 +76,9 @@ export class EncryptionService {
       const tag = Buffer.from(parts[1], 'hex')
       const encrypted = parts[2]
 
-      const decipher = crypto.createDecipher(ALGORITHM, this.key)
-      decipher.setAAD(Buffer.from('CRAVAB-os', 'utf8'))
-      decipher.setAuthTag(tag)
+      const decipher = crypto.createDecipher(ALGORITHM, asBinaryLike(this.key))
+      decipher.setAAD(u8(Buffer.from('CRAVAB-os', 'utf8')))
+      decipher.setAuthTag(u8(tag))
 
       let decrypted = decipher.update(encrypted, 'hex', 'utf8')
       decrypted += decipher.final('utf8')

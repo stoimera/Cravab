@@ -2,11 +2,6 @@
 const nextConfig = {
   reactStrictMode: true,
   
-  // Disable ESLint during builds for production deployment
-  eslint: {
-    ignoreDuringBuilds: true,
-  },
-  
   // Disable TypeScript errors during builds (optional - only if needed)
   typescript: {
     ignoreBuildErrors: false, // Keep this as false to catch TypeScript errors

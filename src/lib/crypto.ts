@@ -1,10 +1,24 @@
-import crypto from 'crypto';
+import crypto from 'crypto'
+import type { BinaryLike, CipherKey } from 'crypto'
 import { logger } from '@/lib/logger'
 
-const ALGORITHM = 'aes-256-gcm';
-const IV_LENGTH = 16; // For GCM, this is 96 bits
-const TAG_LENGTH = 16; // For GCM, this is 128 bits
-const SALT_LENGTH = 64; // 512 bits
+const ALGORITHM = 'aes-256-gcm'
+const IV_LENGTH = 16 // For GCM, this is 96 bits
+const TAG_LENGTH = 16 // For GCM, this is 128 bits
+const SALT_LENGTH = 64 // 512 bits
+
+function asCipherKey(buf: Buffer): CipherKey {
+  return buf as unknown as CipherKey
+}
+
+function asBinaryLike(buf: Buffer): BinaryLike {
+  return buf as unknown as BinaryLike
+}
+
+/** TS 6 / @types/node: satisfy Buffer vs Uint8Array<ArrayBufferLike> overloads without copying. */
+function u8(buf: Buffer): Uint8Array {
+  return new Uint8Array(buf.buffer, buf.byteOffset, buf.byteLength)
+}
 
 /**
  * Encrypt text using AES-256-GCM
@@ -14,38 +28,38 @@ const SALT_LENGTH = 64; // 512 bits
  */
 export function encryptText(masterKeyBase64: string, plaintext: string): string {
   try {
-    const key = Buffer.from(masterKeyBase64, 'base64');
-    
+    const key = Buffer.from(masterKeyBase64, 'base64')
+
     if (key.length !== 32) {
-      throw new Error('Master key must be 32 bytes (256 bits)');
+      throw new Error('Master key must be 32 bytes (256 bits)')
     }
 
     // Generate random salt and IV
-    const salt = crypto.randomBytes(SALT_LENGTH);
-    const iv = crypto.randomBytes(IV_LENGTH);
-    
+    const salt = crypto.randomBytes(SALT_LENGTH)
+    const iv = crypto.randomBytes(IV_LENGTH)
+
     // Derive key from master key and salt using PBKDF2
-    const derivedKey = crypto.pbkdf2Sync(key, salt, 100000, 32, 'sha256');
-    
+    const derivedKey = crypto.pbkdf2Sync(asBinaryLike(key), asBinaryLike(salt), 100000, 32, 'sha256')
+
     // Create cipher
-    const cipher = crypto.createCipheriv(ALGORITHM, derivedKey, iv);
-    
+    const cipher = crypto.createCipheriv(ALGORITHM, asCipherKey(derivedKey), asBinaryLike(iv))
+
     // Encrypt the plaintext
     const encrypted = Buffer.concat([
-      cipher.update(plaintext, 'utf8'),
-      cipher.final()
-    ]);
-    
+      u8(cipher.update(plaintext, 'utf8')),
+      u8(cipher.final())
+    ])
+
     // Get authentication tag
-    const tag = cipher.getAuthTag();
-    
+    const tag = cipher.getAuthTag()
+
     // Combine salt:iv:tag:encrypted
-    const combined = Buffer.concat([salt, iv, tag, encrypted]);
-    
-    return combined.toString('base64');
+    const combined = Buffer.concat([u8(salt), u8(iv), u8(tag), u8(encrypted)])
+
+    return combined.toString('base64')
   } catch (error) {
-    logger.error('Encryption error:', error);
-    throw new Error('Failed to encrypt text');
+    logger.error('Encryption error:', error)
+    throw new Error('Failed to encrypt text')
   }
 }
 
@@ -57,38 +71,35 @@ export function encryptText(masterKeyBase64: string, plaintext: string): string 
  */
 export function decryptText(masterKeyBase64: string, ciphertextBase64: string): string {
   try {
-    const key = Buffer.from(masterKeyBase64, 'base64');
-    
+    const key = Buffer.from(masterKeyBase64, 'base64')
+
     if (key.length !== 32) {
-      throw new Error('Master key must be 32 bytes (256 bits)');
+      throw new Error('Master key must be 32 bytes (256 bits)')
     }
 
     // Decode the base64 data
-    const combined = Buffer.from(ciphertextBase64, 'base64');
-    
+    const combined = Buffer.from(ciphertextBase64, 'base64')
+
     // Extract components
-    const salt = combined.slice(0, SALT_LENGTH);
-    const iv = combined.slice(SALT_LENGTH, SALT_LENGTH + IV_LENGTH);
-    const tag = combined.slice(SALT_LENGTH + IV_LENGTH, SALT_LENGTH + IV_LENGTH + TAG_LENGTH);
-    const encrypted = combined.slice(SALT_LENGTH + IV_LENGTH + TAG_LENGTH);
-    
+    const salt = combined.slice(0, SALT_LENGTH)
+    const iv = combined.slice(SALT_LENGTH, SALT_LENGTH + IV_LENGTH)
+    const tag = combined.slice(SALT_LENGTH + IV_LENGTH, SALT_LENGTH + IV_LENGTH + TAG_LENGTH)
+    const encrypted = combined.slice(SALT_LENGTH + IV_LENGTH + TAG_LENGTH)
+
     // Derive key from master key and salt using PBKDF2
-    const derivedKey = crypto.pbkdf2Sync(key, salt, 100000, 32, 'sha256');
-    
+    const derivedKey = crypto.pbkdf2Sync(asBinaryLike(key), asBinaryLike(salt), 100000, 32, 'sha256')
+
     // Create decipher
-    const decipher = crypto.createDecipheriv(ALGORITHM, derivedKey, iv);
-    decipher.setAuthTag(tag);
-    
+    const decipher = crypto.createDecipheriv(ALGORITHM, asCipherKey(derivedKey), asBinaryLike(iv))
+    decipher.setAuthTag(u8(tag))
+
     // Decrypt the data
-    const decrypted = Buffer.concat([
-      decipher.update(encrypted),
-      decipher.final()
-    ]);
-    
-    return decrypted.toString('utf8');
+    const decrypted = Buffer.concat([u8(decipher.update(u8(encrypted))), u8(decipher.final())])
+
+    return decrypted.toString('utf8')
   } catch (error) {
-    logger.error('Decryption error:', error);
-    throw new Error('Failed to decrypt text');
+    logger.error('Decryption error:', error)
+    throw new Error('Failed to decrypt text')
   }
 }
 
@@ -97,7 +108,7 @@ export function decryptText(masterKeyBase64: string, ciphertextBase64: string): 
  * @returns Base64 encoded master key
  */
 export function generateMasterKey(): string {
-  return crypto.randomBytes(32).toString('base64');
+  return crypto.randomBytes(32).toString('base64')
 }
 
 /**
@@ -107,10 +118,10 @@ export function generateMasterKey(): string {
  */
 export function isValidMasterKey(masterKeyBase64: string): boolean {
   try {
-    const key = Buffer.from(masterKeyBase64, 'base64');
-    return key.length === 32;
+    const key = Buffer.from(masterKeyBase64, 'base64')
+    return key.length === 32
   } catch {
-    return false;
+    return false
   }
 }
 
@@ -121,12 +132,12 @@ export function isValidMasterKey(masterKeyBase64: string): boolean {
  */
 export function testEncryption(masterKeyBase64: string): boolean {
   try {
-    const testText = 'This is a test message for encryption validation';
-    const encrypted = encryptText(masterKeyBase64, testText);
-    const decrypted = decryptText(masterKeyBase64, encrypted);
-    return decrypted === testText;
+    const testText = 'This is a test message for encryption validation'
+    const encrypted = encryptText(masterKeyBase64, testText)
+    const decrypted = decryptText(masterKeyBase64, encrypted)
+    return decrypted === testText
   } catch {
-    return false;
+    return false
   }
 }
 
@@ -136,7 +147,7 @@ export function testEncryption(masterKeyBase64: string): boolean {
  * @returns SHA-256 hash as hex string
  */
 export function hashText(text: string): string {
-  return crypto.createHash('sha256').update(text).digest('hex');
+  return crypto.createHash('sha256').update(text).digest('hex')
 }
 
 /**
@@ -145,7 +156,7 @@ export function hashText(text: string): string {
  * @returns Base64 encoded random token
  */
 export function generateWebhookToken(length: number = 32): string {
-  return crypto.randomBytes(length).toString('base64');
+  return crypto.randomBytes(length).toString('base64')
 }
 
 /**
@@ -164,13 +175,12 @@ export function verifyWebhookSignature(
     const expectedSignature = crypto
       .createHmac('sha256', secret)
       .update(payload)
-      .digest('hex');
-    
-    return crypto.timingSafeEqual(
-      Buffer.from(signature, 'hex'),
-      Buffer.from(expectedSignature, 'hex')
-    );
+      .digest('hex')
+
+    const a = new Uint8Array(Buffer.from(signature, 'hex'))
+    const b = new Uint8Array(Buffer.from(expectedSignature, 'hex'))
+    return crypto.timingSafeEqual(a, b)
   } catch {
-    return false;
+    return false
   }
 }

@@ -59,7 +59,7 @@ export function useScreenshot() {
       // Use html2canvas for better compatibility
       if (typeof window !== 'undefined') {
         const canvasElement = await html2canvas(element, {
-          background: backgroundColor,
+          backgroundColor,
           useCORS: true,
           allowTaint: true
         })
