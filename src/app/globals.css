@@ -1,0 +1,611 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Mobile-specific responsive utilities */
+@layer utilities {
+  /* Android-specific breakpoints for different phone sizes */
+  
+  /* Very small Android phones (320px-360px) */
+  @media (max-width: 360px) {
+    .android-xs\:text-xs { font-size: 0.75rem; line-height: 1rem; }
+    .android-xs\:px-1 { padding-left: 0.25rem; padding-right: 0.25rem; }
+    .android-xs\:py-1 { padding-top: 0.25rem; padding-bottom: 0.25rem; }
+    .android-xs\:gap-1 { gap: 0.25rem; }
+    .android-xs\:min-w-0 { min-width: 0; }
+    .android-xs\:text-2xs { font-size: 0.625rem; line-height: 0.875rem; }
+    .android-xs\:w-full { width: 100%; }
+  }
+  
+  /* Small Android phones (360px-375px) */
+  @media (min-width: 361px) and (max-width: 375px) {
+    .android-sm\:text-sm { font-size: 0.875rem; line-height: 1.25rem; }
+    .android-sm\:px-2 { padding-left: 0.5rem; padding-right: 0.5rem; }
+    .android-sm\:py-2 { padding-top: 0.5rem; padding-bottom: 0.5rem; }
+    .android-sm\:gap-2 { gap: 0.5rem; }
+  }
+  
+  /* Medium Android phones (375px-414px) */
+  @media (min-width: 376px) and (max-width: 414px) {
+    .android-md\:text-base { font-size: 1rem; line-height: 1.5rem; }
+    .android-md\:px-3 { padding-left: 0.75rem; padding-right: 0.75rem; }
+    .android-md\:py-3 { padding-top: 0.75rem; padding-bottom: 0.75rem; }
+    .android-md\:gap-3 { gap: 0.75rem; }
+  }
+  
+  /* Large Android phones (414px-480px) */
+  @media (min-width: 415px) and (max-width: 480px) {
+    .android-lg\:text-lg { font-size: 1.125rem; line-height: 1.75rem; }
+    .android-lg\:px-4 { padding-left: 1rem; padding-right: 1rem; }
+    .android-lg\:py-4 { padding-top: 1rem; padding-bottom: 1rem; }
+    .android-lg\:gap-4 { gap: 1rem; }
+  }
+  
+  /* Extra small screens (phones in portrait) - General fallback */
+  @media (max-width: 475px) {
+    .xs\:text-xs { font-size: 0.75rem; line-height: 1rem; }
+    .xs\:px-2 { padding-left: 0.5rem; padding-right: 0.5rem; }
+    .xs\:py-1 { padding-top: 0.25rem; padding-bottom: 0.25rem; }
+    .xs\:gap-1 { gap: 0.25rem; }
+    .xs\:min-w-0 { min-width: 0; }
+  }
+  
+  /* Safe area support for mobile devices */
+  .safe-area-pb {
+    padding-bottom: calc(env(safe-area-inset-bottom) + 1rem);
+  }
+  
+  .safe-area-pt {
+    /* On Android: env(safe-area-inset-top) = 0, so no padding added */
+    /* On iOS: env(safe-area-inset-top) = 44-47px, so padding is applied */
+    padding-top: env(safe-area-inset-top, 0px);
+  }
+  
+  /* iOS PWA Status Bar Fix - Simplified and Reliable */
+  /* When status-bar-style is black-translucent, content goes under the status bar */
+  /* We need to add padding to push content down */
+  @media (display-mode: standalone) {
+    /* iOS-specific: Force minimum padding for status bar clearance */
+    /* -webkit-touch-callout is iOS-only, so this safely targets iOS */
+    @supports (-webkit-touch-callout: none) {
+      .ios-header-fix {
+        /* Minimum 47px for standard iOS status bar height */
+        /* Use safe-area-inset-top if available and larger (for notched devices) */
+        /* Fallback to 47px if env() is not supported or returns 0 */
+        padding-top: max(env(safe-area-inset-top, 47px), 47px) !important;
+      }
+    }
+    
+    /* Fallback: Apply to safe-area-pt class as well for broader compatibility */
+    .safe-area-pt {
+      padding-top: env(safe-area-inset-top, 0px);
+    }
+  }
+  
+  /* iOS PWA specific: Ensure content doesn't get hidden behind bottom nav */
+  @media screen and (max-width: 768px) {
+    .ios-pwa-content {
+      padding-bottom: calc(80px + env(safe-area-inset-bottom));
+    }
+  }
+  
+  /* iOS image display fixes */
+  @media screen and (max-width: 768px) {
+    img {
+      -webkit-user-select: none;
+      -webkit-touch-callout: none;
+      -webkit-tap-highlight-color: transparent;
+    }
+    
+    .ios-image-container {
+      -webkit-transform: translateZ(0);
+      transform: translateZ(0);
+      -webkit-backface-visibility: hidden;
+      backface-visibility: hidden;
+    }
+  }
+  
+  /* Prevent zoom on input focus for mobile */
+  @media screen and (max-width: 768px) {
+    input[type="text"],
+    input[type="email"],
+    input[type="tel"],
+    input[type="password"],
+    textarea,
+    select {
+      font-size: 16px;
+    }
+  }
+  
+  /* Better touch targets for mobile */
+  @media (max-width: 768px) {
+    .touch-target {
+      min-height: 44px;
+      min-width: 44px;
+    }
+  }
+  
+  /* Android-specific optimizations */
+  
+  /* Android high-density displays */
+  @media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+    .android-hd\:text-sm { font-size: 0.875rem; }
+    .android-hd\:px-3 { padding-left: 0.75rem; padding-right: 0.75rem; }
+    .android-hd\:py-2 { padding-top: 0.5rem; padding-bottom: 0.5rem; }
+  }
+  
+  /* Android ultra-high-density displays */
+  @media (-webkit-min-device-pixel-ratio: 3), (min-resolution: 288dpi) {
+    .android-uhd\:text-base { font-size: 1rem; }
+    .android-uhd\:px-4 { padding-left: 1rem; padding-right: 1rem; }
+    .android-uhd\:py-3 { padding-top: 0.75rem; padding-bottom: 0.75rem; }
+  }
+  
+  /* Android landscape orientation */
+  @media (max-width: 768px) and (orientation: landscape) {
+    .android-landscape\:text-sm { font-size: 0.875rem; }
+    .android-landscape\:px-2 { padding-left: 0.5rem; padding-right: 0.5rem; }
+    .android-landscape\:py-1 { padding-top: 0.25rem; padding-bottom: 0.25rem; }
+    .android-landscape\:h-auto { height: auto; }
+    .android-landscape\:max-h-60 { max-height: 15rem; }
+  }
+  
+  /* Android very small screens in landscape */
+  @media (max-width: 640px) and (orientation: landscape) {
+    .android-landscape-xs\:text-xs { font-size: 0.75rem; }
+    .android-landscape-xs\:px-1 { padding-left: 0.25rem; padding-right: 0.25rem; }
+    .android-landscape-xs\:py-1 { padding-top: 0.25rem; padding-bottom: 0.25rem; }
+    .android-landscape-xs\:h-12 { height: 3rem; }
+  }
+  
+  /* Android Chrome-specific optimizations */
+  @media screen and (-webkit-min-device-pixel-ratio: 0) {
+    .android-chrome\:transform-gpu {
+      transform: translateZ(0);
+      -webkit-transform: translateZ(0);
+    }
+    .android-chrome\:backface-hidden {
+      -webkit-backface-visibility: hidden;
+      backface-visibility: hidden;
+    }
+  }
+  
+  /* Android Samsung-specific optimizations */
+  @media screen and (-webkit-min-device-pixel-ratio: 0) and (max-width: 480px) {
+    .android-samsung\:text-sm { font-size: 0.875rem; }
+    .android-samsung\:px-3 { padding-left: 0.75rem; padding-right: 0.75rem; }
+  }
+  
+  /* Line clamp utilities */
+  .line-clamp-1 {
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 1;
+  }
+  
+  .line-clamp-2 {
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+  }
+  
+  .line-clamp-3 {
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 3;
+  }
+}
+
+/* Smooth scrolling for the entire page */
+/* Note: data-scroll-behavior="smooth" is set in layout.tsx */
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+  --color-sidebar-ring: var(--sidebar-ring);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar: var(--sidebar);
+  --color-chart-5: var(--chart-5);
+  --color-chart-4: var(--chart-4);
+  --color-chart-3: var(--chart-3);
+  --color-chart-2: var(--chart-2);
+  --color-chart-1: var(--chart-1);
+  --color-ring: var(--ring);
+  --color-input: var(--input);
+  --color-border: var(--border);
+  --color-destructive: var(--destructive);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-accent: var(--accent);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-muted: var(--muted);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-secondary: var(--secondary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary: var(--primary);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-popover: var(--popover);
+  --color-card-foreground: var(--card-foreground);
+  --color-card: var(--card);
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+}
+
+:root {
+  --radius: 0.625rem;
+  --background: oklch(1 0 0);
+  --foreground: oklch(0.145 0 0);
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.145 0 0);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.145 0 0);
+  --primary: oklch(0.205 0 0);
+  --primary-foreground: oklch(0.985 0 0);
+  --secondary: oklch(0.97 0 0);
+  --secondary-foreground: oklch(0.205 0 0);
+  --muted: oklch(0.97 0 0);
+  --muted-foreground: oklch(0.556 0 0);
+  --accent: oklch(0.97 0 0);
+  --accent-foreground: oklch(0.205 0 0);
+  --destructive: oklch(0.577 0.245 27.325);
+  --border: oklch(0.922 0 0);
+  --input: oklch(0.922 0 0);
+  --ring: oklch(0.708 0 0);
+  --chart-1: oklch(0.646 0.222 41.116);
+  --chart-2: oklch(0.6 0.118 184.704);
+  --chart-3: oklch(0.398 0.07 227.392);
+  --chart-4: oklch(0.828 0.189 84.429);
+  --chart-5: oklch(0.769 0.188 70.08);
+  --sidebar: oklch(0.985 0 0);
+  --sidebar-foreground: oklch(0.145 0 0);
+  --sidebar-primary: oklch(0.205 0 0);
+  --sidebar-primary-foreground: oklch(0.985 0 0);
+  --sidebar-accent: oklch(0.97 0 0);
+  --sidebar-accent-foreground: oklch(0.205 0 0);
+  --sidebar-border: oklch(0.922 0 0);
+  --sidebar-ring: oklch(0.708 0 0);
+}
+
+.dark {
+  --background: oklch(0.145 0 0);
+  --foreground: oklch(0.985 0 0);
+  --card: oklch(0.205 0 0);
+  --card-foreground: oklch(0.985 0 0);
+  --popover: oklch(0.205 0 0);
+  --popover-foreground: oklch(0.985 0 0);
+  --primary: oklch(0.922 0 0);
+  --primary-foreground: oklch(0.205 0 0);
+  --secondary: oklch(0.269 0 0);
+  --secondary-foreground: oklch(0.985 0 0);
+  --muted: oklch(0.269 0 0);
+  --muted-foreground: oklch(0.708 0 0);
+  --accent: oklch(0.269 0 0);
+  --accent-foreground: oklch(0.985 0 0);
+  --destructive: oklch(0.704 0.191 22.216);
+  --border: oklch(1 0 0 / 10%);
+  --input: oklch(1 0 0 / 15%);
+  --ring: oklch(0.556 0 0);
+  --chart-1: oklch(0.488 0.243 264.376);
+  --chart-2: oklch(0.696 0.17 162.48);
+  --chart-3: oklch(0.769 0.188 70.08);
+  --chart-4: oklch(0.627 0.265 303.9);
+  --chart-5: oklch(0.645 0.246 16.439);
+  --sidebar: oklch(0.205 0 0);
+  --sidebar-foreground: oklch(0.985 0 0);
+  --sidebar-primary: oklch(0.488 0.243 264.376);
+  --sidebar-primary-foreground: oklch(0.985 0 0);
+  --sidebar-accent: oklch(0.269 0 0);
+  --sidebar-accent-foreground: oklch(0.985 0 0);
+  --sidebar-border: oklch(1 0 0 / 10%);
+  --sidebar-ring: oklch(0.556 0 0);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+  .font-inter {
+    font-family: 'Inter', sans-serif;
+  }
+}
+
+/* Mobile-first responsive design */
+@layer utilities {
+  .mobile-container {
+    @apply px-4 py-2 min-h-screen overflow-y-auto;
+  }
+  
+  .mobile-card {
+    @apply bg-white rounded-lg shadow-sm border border-gray-200 p-4;
+  }
+  
+  .mobile-button {
+    @apply h-12 px-4 rounded-lg font-medium text-sm;
+  }
+  
+  .mobile-input {
+    @apply h-12 px-4 rounded-lg border border-gray-300 focus:border-blue-500 focus:ring-1 focus:ring-blue-500;
+  }
+}
+
+/* PWA specific styles */
+@media (display-mode: standalone) {
+  body {
+    -webkit-user-select: none;
+    -webkit-touch-callout: none;
+  }
+}
+
+/* Touch target optimization */
+@media (max-width: 768px) {
+  button, [role="button"], input, select, textarea {
+    min-height: 44px;
+  }
+}
+
+/* Hide scrollbar utility */
+.scrollbar-hide {
+  -ms-overflow-style: none;  /* Internet Explorer 10+ */
+  scrollbar-width: none;  /* Firefox */
+}
+.scrollbar-hide::-webkit-scrollbar { 
+  display: none;  /* Safari and Chrome */
+}
+
+/* Interactive Elements with Smooth Transitions */
+.interactive {
+  @apply transition-all duration-200 hover:scale-[1.02] active:scale-[0.98];
+}
+
+.list-row {
+  @apply p-4 border-b border-border/50 last:border-b-0 hover:bg-muted/30 transition-colors duration-200;
+}
+
+/* Page Transitions */
+.page-transition {
+  @apply transition-all duration-300 ease-in-out;
+}
+
+/* Page Enter/Exit Animations */
+@keyframes pageEnter {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes pageExit {
+  from {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+}
+
+.page-enter {
+  animation: pageEnter 0.3s ease-out;
+}
+
+.page-exit {
+  animation: pageExit 0.2s ease-in;
+}
+
+/* Button Transitions */
+.btn-transition {
+  @apply transition-all duration-200 ease-in-out hover:shadow-md active:scale-95;
+}
+
+/* Card Transitions */
+.card-transition {
+  @apply transition-all duration-200 ease-in-out hover:shadow-lg hover:-translate-y-1;
+}
+
+/* Modal Transitions */
+.modal-transition {
+  @apply transition-all duration-300 ease-in-out;
+}
+
+@keyframes modalEnter {
+  from {
+    opacity: 0;
+    transform: scale(0.95) translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+@keyframes modalExit {
+  from {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+  to {
+    opacity: 0;
+    transform: scale(0.95) translateY(-10px);
+  }
+}
+
+.modal-enter {
+  animation: modalEnter 0.2s ease-out;
+}
+
+.modal-exit {
+  animation: modalExit 0.15s ease-in;
+}
+
+/* Navigation Transitions */
+.nav-transition {
+  @apply transition-all duration-200 ease-in-out;
+}
+
+/* Form Transitions */
+.form-transition {
+  @apply transition-all duration-200 ease-in-out;
+}
+
+/* Loading Transitions */
+.loading-transition {
+  @apply transition-opacity duration-200 ease-in-out;
+}
+
+/* Fade Transitions */
+.fade-in {
+  @apply transition-opacity duration-300 ease-in-out;
+  opacity: 0;
+}
+
+.fade-in.visible {
+  opacity: 1;
+}
+
+/* Slide Transitions */
+.slide-up {
+  @apply transition-all duration-300 ease-out;
+  transform: translateY(20px);
+  opacity: 0;
+}
+
+.slide-up.visible {
+  transform: translateY(0);
+  opacity: 1;
+}
+
+.slide-down {
+  @apply transition-all duration-300 ease-out;
+  transform: translateY(-20px);
+  opacity: 0;
+}
+
+.slide-down.visible {
+  transform: translateY(0);
+  opacity: 1;
+}
+
+.slide-left {
+  @apply transition-all duration-300 ease-out;
+  transform: translateX(20px);
+  opacity: 0;
+}
+
+.slide-left.visible {
+  transform: translateX(0);
+  opacity: 1;
+}
+
+.slide-right {
+  @apply transition-all duration-300 ease-out;
+  transform: translateX(-20px);
+  opacity: 0;
+}
+
+.slide-right.visible {
+  transform: translateX(0);
+  opacity: 1;
+}
+
+/* Scale Transitions */
+.scale-in {
+  @apply transition-all duration-200 ease-out;
+  transform: scale(0.95);
+  opacity: 0;
+}
+
+.scale-in.visible {
+  transform: scale(1);
+  opacity: 1;
+}
+
+/* Stagger Animation for Lists */
+.stagger-item {
+  @apply transition-all duration-300 ease-out;
+  transform: translateY(20px);
+  opacity: 0;
+}
+
+.stagger-item.visible {
+  transform: translateY(0);
+  opacity: 1;
+}
+
+.stagger-item:nth-child(1) { transition-delay: 0ms; }
+.stagger-item:nth-child(2) { transition-delay: 50ms; }
+.stagger-item:nth-child(3) { transition-delay: 100ms; }
+.stagger-item:nth-child(4) { transition-delay: 150ms; }
+.stagger-item:nth-child(5) { transition-delay: 200ms; }
+.stagger-item:nth-child(6) { transition-delay: 250ms; }
+.stagger-item:nth-child(7) { transition-delay: 300ms; }
+.stagger-item:nth-child(8) { transition-delay: 350ms; }
+
+/* Hover Effects */
+.hover-lift {
+  @apply transition-all duration-200 ease-in-out;
+}
+
+.hover-lift:hover {
+  @apply transform -translate-y-1 shadow-lg;
+}
+
+.hover-glow {
+  @apply transition-all duration-200 ease-in-out;
+}
+
+.hover-glow:hover {
+  @apply shadow-lg ring-2 ring-blue-500/20;
+}
+
+/* Focus States */
+.focus-ring {
+  @apply transition-all duration-200 ease-in-out;
+}
+
+.focus-ring:focus {
+  @apply ring-2 ring-blue-500 ring-offset-2;
+}
+
+/* Smooth Scrolling */
+/* Note: data-scroll-behavior="smooth" is set in layout.tsx */
+
+/* Loading States */
+.loading-pulse {
+  @apply animate-pulse;
+}
+
+.loading-spin {
+  @apply animate-spin;
+}
+
+/* Mobile Optimizations */
+@media (max-width: 768px) {
+  .mobile-smooth {
+    @apply transition-all duration-200 ease-in-out;
+  }
+  
+  .mobile-tap {
+    @apply active:scale-95 transition-transform duration-100;
+  }
+}

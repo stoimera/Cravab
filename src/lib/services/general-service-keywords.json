@@ -1,0 +1,44 @@
+{
+  "general_plumbing": {
+    "keywords": [
+      "plumbing", "pipe", "water", "drain", "toilet", "sink", "faucet", "shower", "bathroom", "kitchen",
+      "leak", "leaking", "drip", "dripping", "clog", "clogged", "blocked", "backup", "overflow",
+      "repair", "fix", "replace", "install", "maintenance", "service", "emergency", "urgent",
+      "hot water", "cold water", "pressure", "valve", "fitting", "joint", "connection",
+      "sewer", "septic", "drainage", "waste", "disposal", "garbage disposal",
+      "water heater", "boiler", "tank", "tankless", "heating", "cooling",
+      "basement", "crawl space", "attic", "utility room", "laundry room"
+    ],
+    "emergency_keywords": [
+      "flood", "flooding", "burst", "broken", "cracked", "exploded", "overflowing",
+      "sewage", "backup", "emergency", "urgent", "immediately", "asap", "now",
+      "water damage", "flooding", "soaked", "wet", "moisture", "mold", "mildew"
+    ],
+    "service_categories": {
+      "drain_cleaning": [
+        "drain", "clog", "clogged", "blocked", "slow", "backup", "overflow",
+        "snake", "auger", "hydro jet", "cleaning", "maintenance"
+      ],
+      "pipe_repair": [
+        "pipe", "leak", "leaking", "drip", "dripping", "burst", "broken", "cracked",
+        "repair", "replace", "fitting", "joint", "connection", "valve"
+      ],
+      "toilet_service": [
+        "toilet", "commode", "john", "throne", "running", "leaking", "clogged",
+        "overflowing", "backup", "repair", "replace", "install", "wax ring"
+      ],
+      "faucet_service": [
+        "faucet", "tap", "sink", "drip", "dripping", "leak", "leaking", "repair",
+        "replace", "install", "cartridge", "washer", "o-ring"
+      ],
+      "water_heater": [
+        "water heater", "hot water", "boiler", "tank", "tankless", "heating",
+        "cold water", "no hot water", "repair", "replace", "install", "maintenance"
+      ],
+      "emergency_service": [
+        "emergency", "urgent", "flood", "flooding", "burst", "broken", "cracked",
+        "sewage", "backup", "overflowing", "water damage", "immediately", "asap"
+      ]
+    }
+  }
+}

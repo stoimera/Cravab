@@ -1,0 +1,294 @@
+# Cravab - Comprehensive Cursor IDE Rules
+
+## Project Context
+Multi-tenant AI-powered business management PWA with Next.js 15, Supabase, Vapi AI integration, and comprehensive caching architecture.
+
+## Architecture & Patterns
+
+### Multi-tenant Architecture
+- All data operations must include `tenant_id` isolation
+- Use `user.user_metadata?.tenant_id || user.id` for tenant identification
+- Implement proper RLS (Row Level Security) policies for data isolation
+- Never expose cross-tenant data
+- Never use hardcoded fallbacks that could cause tenant confusion
+- Always validate tenant context before any operation
+- Ensure complete tenant data isolation at all levels
+- Use tenant-specific configuration for all settings
+- Implement proper tenant validation and error handling
+
+### PWA-First Design
+- Implement offline-first patterns with proper cache invalidation
+- Use unified `CacheInvalidationService` for all cache operations
+- Implement proper service worker caching
+- Use PWA storage with lazy initialization to prevent SSR issues
+
+### AI Integration
+- Follow Vapi webhook integration patterns
+- Use proper webhook verification for external integrations
+- Implement proper error handling for AI service failures
+- Follow the established system prompt patterns
+- Use `WebhookMonitor` for AI call performance tracking
+- Implement proper function call parameter mapping with `mapVapiParameters()`
+- Use proper status mapping with `mapVapiStatusToDbStatus()`
+- Follow the comprehensive Vapi system prompt patterns
+- Implement proper service area validation before booking
+- Use proper client lookup before creating new clients
+- Implement proper business hours validation
+- Use proper date handling with tenant-specific timezone considerations
+- Use `getTenantTimezone()` to get tenant's configured timezone
+- Require tenant timezone to be configured - no fallback timezone
+- Use `parseRelativeDate()` for handling relative dates in tenant timezone
+- Use `handleTenantTimezoneDateTime()` for datetime parsing
+- Follow the mandatory function call order: getCurrentDate → checkServiceArea → findServiceForClient → bookAppointment
+
+## Code Standards
+
+### TypeScript & Validation
+- Use strict TypeScript with proper interfaces from `database-comprehensive.ts`
+- Validate all API inputs with Zod schemas from `schemas.ts`
+- Never use `any` types - provide specific interfaces
+- Use proper error handling with `StandardError` types
+- Follow the comprehensive schema patterns
+
+### API Routes (Next.js 15 App Router)
+```typescript
+export async function GET(request: NextRequest) {
+  try {
+    const cookieStore = await cookies()
+    const supabase = createClient(cookieStore)
+    const { data: { user } } = await supabase.auth.getUser()
+    
+    if (!user) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
+    
+    const tenantId = user.user_metadata?.tenant_id || user.id
+    // ... implementation
+  } catch (error) {
+    console.error('Error:', error)
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
+  }
+}
+```
+
+### React Components
+- Use Radix UI components with proper accessibility
+- Implement proper loading states and error boundaries
+- Follow the animation system patterns with Framer Motion
+- Use proper form validation with React Hook Form + Zod
+- Implement proper PWA patterns for offline functionality
+
+### Database Operations
+- Use `DatabaseService` class for all database operations
+- Implement proper RLS (Row Level Security) policies
+- Use proper error handling and transaction management
+- Follow the comprehensive schema patterns
+
+### Caching Strategy
+- Use unified `CacheInvalidationService` for all cache operations
+- Implement proper TTL values: 30s (real-time), 5min (frequent), 15min (stable), 1h (static)
+- Use React Query for server state management
+- Implement proper offline cache with PWA storage
+
+## Visual Design Principles
+
+### Design Standards
+- **NO EMOJIS** - Never use emojis in code, UI, or comments
+- **Mobile-first design** - All layouts must be optimized for mobile devices first
+- **Light theme only** - White background, black text, blue accents
+- **Clean, polished, minimalistic, professional appearance** - Business-focused UI
+
+### Performance Optimization
+- Use proper React optimization patterns (memo, useMemo, useCallback)
+- Implement proper code splitting and lazy loading
+- Use proper image optimization with Next.js Image
+- Follow the performance monitoring patterns
+- Use skeleton loaders for data fetching states
+- Use `DatabaseOptimizer` for query optimization and caching
+- Implement proper query metrics tracking
+- Use `WebhookMonitor` for performance monitoring
+- Set performance thresholds: maxResponseTime: 5000ms, maxMemoryUsage: 100MB, maxErrorRate: 10%
+- Implement proper cache hit rate monitoring (target: >50%)
+- Use `CacheManager` for centralized cache management
+
+## Security & Authentication
+
+### Security Standards
+- Encrypt sensitive data (API keys) with proper encryption using `EncryptionService`
+- Implement proper input validation and sanitization using `InputValidator`
+- Use proper authentication and authorization patterns
+- Follow webhook verification patterns for external integrations
+- Never expose sensitive data in client-side code
+- Use `RateLimiter` for API endpoint protection
+- Implement proper input sanitization with `sanitizeString()`, `sanitizeHTML()`, `sanitizeObject()`
+- Validate all inputs with Zod schemas from `commonSchemas` and `webhookSchemas`
+- Use proper phone number validation: `/^\+?[1-9]\d{1,14}$/`
+- Use proper email validation with Zod email schema
+- Use proper UUID validation with regex pattern
+- Implement proper webhook payload validation with `validateWebhookPayload()`
+
+### Authentication Patterns
+- Always check Supabase authentication status before showing data
+- Implement proper RLS (Row Level Security) policies
+- Use proper tenant isolation in all operations
+
+### Multi-Tenancy Best Practices
+- Always validate tenant context before any operation
+- Use tenant-specific configuration for all settings (timezone, business hours, etc.)
+- Implement proper tenant validation and error handling
+- Never use hardcoded fallbacks that could cause tenant confusion
+- Ensure complete tenant data isolation at all levels
+- Use tenant-specific caching keys to prevent data leakage
+- Implement proper tenant onboarding with required configuration
+- Validate tenant settings exist before using them
+- Use tenant-specific error messages and logging
+- Implement proper tenant context propagation through all layers
+
+### Timezone Handling
+- Use `getTenantTimezone(tenantId)` to get tenant's configured timezone
+- Require tenant timezone to be configured - no fallback timezone
+- Use `parseRelativeDate(dateInput, userTimezone)` for relative date parsing
+- Use `handleTenantTimezoneDateTime(tenantDateTime, tenantTimezone)` for datetime parsing
+- Store times in tenant timezone, not UTC
+- Use `Intl.DateTimeFormat` for proper timezone conversion
+- Cache tenant timezones to avoid repeated database calls
+- Handle timezone conversion in business hours calculations
+- Ensure all tenants have timezone configured during onboarding
+- Never use hardcoded timezone fallbacks that could cause tenant confusion
+- Validate tenant timezone exists before any timezone-dependent operations
+
+## Component Architecture
+
+### Component Patterns
+```typescript
+interface ComponentProps {
+  tenantId: string
+  // ... other props
+}
+
+export function Component({ tenantId, ...props }: ComponentProps) {
+  const { data, isLoading, error } = useQuery({
+    queryKey: ['key', tenantId],
+    queryFn: () => fetchData(tenantId)
+  })
+  
+  if (isLoading) return <LoadingState />
+  if (error) return <ErrorState error={error} />
+  
+  return <div>{/* component content */}</div>
+}
+```
+
+### File Organization
+- Create reusable UI components in `/components/ui`
+- Build domain-specific components (CallCard, ClientCard, etc.) in `/components`
+- Use shadcn/ui components as the foundation
+- Follow the established file structure strictly
+- Use consistent naming conventions (camelCase for components, kebab-case for files)
+
+## State Management
+
+### State Patterns
+- **Primary**: Use React Context API for simple state management
+- **Secondary**: Use Zustand only when Context API is insufficient
+- Use React Query for server state management
+- Avoid prop drilling - use context or state management libraries
+- Keep state as close to where it's used as possible
+
+## Error Handling & Quality
+
+### Error Handling
+- Use the comprehensive `ErrorLogger` class for all error logging
+- Implement proper error types: `VALIDATION`, `AUTHENTICATION`, `AUTHORIZATION`, `NOT_FOUND`, `CONFLICT`, `RATE_LIMIT`, `EXTERNAL_API`, `DATABASE`, `NETWORK`, `INTERNAL`, `BUSINESS_LOGIC`
+- Use `handleError()` function for consistent error processing
+- Implement proper error context with `tenantId`, `userId`, `requestId`
+- Use `formatErrorResponse()` for consistent API error responses
+- Never expose internal errors in production - use generic messages
+- Implement proper retry logic with `withRetry()` function
+
+### Logging Standards
+- Use structured logging with proper context
+- Log levels: `DEBUG`, `INFO`, `WARN`, `ERROR`
+- Include timestamp, context, and error details
+- Use `ErrorLogger.getInstance()` for centralized logging
+- Implement proper log rotation and cleanup
+
+### Testing & Quality Assurance
+- Use `IntegrationTest.runAllTests()` for comprehensive testing
+- Test all major integrations: Database, Business Hours, Vapi, Call Management
+- Implement proper health checks with `useHealthCheck()` hook
+- Test webhook functionality with proper monitoring
+- Write comprehensive error handling
+- Implement proper loading states
+- Use proper accessibility patterns
+- Follow the established component patterns
+- Test on mobile devices and different screen sizes
+
+## Common Anti-Patterns to Avoid
+
+- Don't use emojis anywhere in the codebase
+- Don't create components that are too large or complex
+- Don't ignore mobile-first design principles
+- Don't skip proper error handling
+- Don't use inline styles when Tailwind classes are available
+- Don't ignore TypeScript errors
+- Don't create unnecessary re-renders
+- Don't skip accessibility considerations
+- Don't ignore performance implications
+- Don't hardcode values that should be configurable
+- Don't use `any` types - provide specific interfaces
+- Don't ignore tenant isolation requirements
+- Don't skip input validation and sanitization
+- Don't ignore performance monitoring thresholds
+- Don't skip proper error logging with context
+- Don't ignore webhook verification
+- Don't skip service area validation before booking
+- Don't create duplicate clients without checking first
+- Don't book appointments outside business hours
+- Don't ignore cache invalidation when data changes
+- Don't skip proper retry logic for external API calls
+- Don't ignore rate limiting for API endpoints
+- **Don't use hardcoded fallbacks in multi-tenant systems**
+- **Don't assume tenant configuration exists without validation**
+- **Don't use global defaults that could leak between tenants**
+- **Don't skip tenant context validation**
+- **Don't use hardcoded timezone fallbacks**
+- **Don't assume tenant settings without proper checks**
+
+## Development Workflow
+
+### Before Starting Work
+1. Check authentication and payment status
+2. Verify mobile-first design requirements
+3. Ensure proper TypeScript types are defined
+4. Plan component reusability
+5. Consider tenant isolation requirements
+
+### During Development
+1. Test on mobile devices frequently
+2. Validate all user inputs
+3. Check offline functionality
+4. Ensure proper loading states
+5. Verify accessibility compliance
+6. Test multi-tenant data isolation
+
+### Before Committing
+1. Run linting and type checking
+2. Test all critical user flows
+3. Verify mobile responsiveness
+4. Check offline functionality
+5. Ensure no console errors
+6. Verify tenant data isolation
+
+## Success Metrics
+
+- Mobile-first responsive design across all screen sizes
+- Fast loading times and smooth interactions
+- Proper offline functionality
+- Clean, maintainable code structure
+- Comprehensive error handling
+- Accessibility compliance
+- Professional, business-appropriate UI design
+- Proper multi-tenant data isolation
+- Effective AI integration patterns
+- Optimized caching performance

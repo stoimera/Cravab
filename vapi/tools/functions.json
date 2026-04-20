@@ -1,0 +1,279 @@
+{
+  "version": 2,
+  "description": "CRAVAB Vapi tool definitions (24-call set) aligned to /api/vapi/webhook handlers.",
+  "tools": [
+    {
+      "name": "getCurrentDate",
+      "description": "Get current server date and timezone context.",
+      "input_schema": { "type": "object", "properties": {}, "additionalProperties": false }
+    },
+    {
+      "name": "checkServiceArea",
+      "description": "Validate mobile service eligibility by address/zip.",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "address": { "type": "string" },
+          "zip_code": { "type": "string" }
+        },
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "findServiceForClient",
+      "description": "Map natural language request to best matching service.",
+      "input_schema": {
+        "type": "object",
+        "properties": { "client_request": { "type": "string" } },
+        "required": ["client_request"],
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "getPricingInfo",
+      "description": "Get ballpark pricing info for a request context.",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "service_description": { "type": "string" },
+          "is_emergency": { "type": "boolean" }
+        },
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "getPricingDetails",
+      "description": "Alias to getPricingInfo for assistant compatibility.",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "service_description": { "type": "string" },
+          "is_emergency": { "type": "boolean" }
+        },
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "bookAppointment",
+      "description": "Book appointment using validated client and service data.",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "starts_at": { "type": "string", "description": "ISO datetime" },
+          "client_name": { "type": "string" },
+          "client_phone": { "type": "string" },
+          "client_email": { "type": "string" },
+          "client_address": { "type": "string" },
+          "service_id": { "type": "string" },
+          "notes": { "type": "string" }
+        },
+        "required": ["starts_at", "client_phone"],
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "getServices",
+      "description": "Return active services for the tenant.",
+      "input_schema": { "type": "object", "properties": {}, "additionalProperties": false }
+    },
+    {
+      "name": "getAvailability",
+      "description": "Get available booking slots for date window.",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "date": { "type": "string", "description": "ISO date, e.g. 2026-04-19" },
+          "days": { "type": "number" }
+        },
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "getBusinessHours",
+      "description": "Retrieve business hours for scheduling rules.",
+      "input_schema": { "type": "object", "properties": {}, "additionalProperties": false }
+    },
+    {
+      "name": "createClient",
+      "description": "Create a new client record.",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "name": { "type": "string" },
+          "phone": { "type": "string" },
+          "email": { "type": "string" },
+          "address": { "type": "string" }
+        },
+        "required": ["name", "phone"],
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "lookupClient",
+      "description": "Find client by phone or email.",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "phone": { "type": "string" },
+          "email": { "type": "string" }
+        },
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "getClientDetails",
+      "description": "Get a single client's detailed profile.",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "client_id": { "type": "string" },
+          "phone": { "type": "string" },
+          "email": { "type": "string" }
+        },
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "getPricing",
+      "description": "Get pricing for specific service/service_id.",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "service_id": { "type": "string" },
+          "service_name": { "type": "string" }
+        },
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "createQuote",
+      "description": "Generate quote payload for a service request.",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "service_id": { "type": "string" },
+          "client_id": { "type": "string" },
+          "issue_description": { "type": "string" }
+        },
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "rescheduleAppointment",
+      "description": "Move appointment to a new date/time.",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "appointment_id": { "type": "string" },
+          "starts_at": { "type": "string", "description": "ISO datetime" }
+        },
+        "required": ["appointment_id", "starts_at"],
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "cancelAppointment",
+      "description": "Cancel an existing appointment.",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "appointment_id": { "type": "string" },
+          "reason": { "type": "string" }
+        },
+        "required": ["appointment_id"],
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "updateAppointment",
+      "description": "Update non-time appointment details.",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "appointment_id": { "type": "string" },
+          "notes": { "type": "string" },
+          "status": { "type": "string" }
+        },
+        "required": ["appointment_id"],
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "getAppointments",
+      "description": "List appointments by date/status filters.",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "date": { "type": "string", "description": "ISO date" },
+          "status": { "type": "string" }
+        },
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "getClientAppointments",
+      "description": "List all appointments for one client.",
+      "input_schema": {
+        "type": "object",
+        "properties": { "client_id": { "type": "string" } },
+        "required": ["client_id"],
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "updateClient",
+      "description": "Update client profile details.",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "client_id": { "type": "string" },
+          "name": { "type": "string" },
+          "phone": { "type": "string" },
+          "email": { "type": "string" },
+          "address": { "type": "string" }
+        },
+        "required": ["client_id"],
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "getServiceKeywords",
+      "description": "Get keyword map used by service matching.",
+      "input_schema": { "type": "object", "properties": {}, "additionalProperties": false }
+    },
+    {
+      "name": "checkEmergencyRequest",
+      "description": "Classify urgency from issue description.",
+      "input_schema": {
+        "type": "object",
+        "properties": { "request_text": { "type": "string" } },
+        "required": ["request_text"],
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "checkServiceAvailability",
+      "description": "Check whether requested service can be provided now.",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "service_id": { "type": "string" },
+          "requested_date": { "type": "string", "description": "ISO date" }
+        },
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "endCall",
+      "description": "Persist call summary and close session.",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "call_id": { "type": "string" },
+          "summary": { "type": "string" }
+        },
+        "additionalProperties": false
+      }
+    }
+  ]
+}

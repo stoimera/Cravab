@@ -1,0 +1,8 @@
+version: "2"
+authtoken: 330opi6MbZuy6lb2mV7HOp0EWLW_5vpFJgxWE599NVS3TucSp
+update_channel: 'stable'
+tunnels:
+  main-app:
+    proto: http
+    addr: 3000
+    ## subdomain: CRAVAB-main

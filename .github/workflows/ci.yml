@@ -1,0 +1,41 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+
+jobs:
+  quality:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    # `npm run build` runs with NODE_ENV=production, so validate-env does not load .env.local.
+    # Provide non-secret placeholders so CI can type-check, lint, and compile the app.
+    env:
+      NEXT_PUBLIC_SUPABASE_URL: https://ci-placeholder.supabase.co
+      NEXT_PUBLIC_SUPABASE_ANON_KEY: ci-placeholder-anon-key-not-for-production-use-only
+      SUPABASE_SERVICE_ROLE_KEY: ci-placeholder-service-role-not-for-production-use-only
+      MASTER_ENCRYPTION_KEY: ci-placeholder-master-encryption-key-32-chars-minimum
+      NEXT_PUBLIC_APP_URL: https://ci-placeholder.example
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Type check
+        run: npm run type-check
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Build
+        run: npm run build
