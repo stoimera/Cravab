@@ -102,7 +102,7 @@
     "@testing-library/user-event": "^14.6.1",
     "@types/crypto-js": "^4.2.2",
     "@types/web-push": "^3.6.4",
-    "audit-ci": "^6.6.1",
+    "audit-ci": "^7.1.0",
     "encoding": "^0.1.13",
     "jest": "^29.7.0",
     "jest-environment-jsdom": "^30.3.0",
